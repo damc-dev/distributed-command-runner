@@ -133,10 +133,6 @@ func execCommand(server Server, user string, command string) (exitCode int, stdo
 	exit := 0
 
 	cmd := exec.Command("pmrun", "-h", server.Name, user, command)
-	//cmd := exec.Command("echo", "Hello "+user)
-	//cmd := exec.Command("ls", "Hello "+command)
-
-	//fmt.Println(cmd)
 	cmd.Stdout = &stdoutBuf
 	cmd.Stderr = &stderrBuf
 	startErr := cmd.Start()
@@ -237,7 +233,7 @@ func main() {
 			},
 			Action: func(c *cli.Context) error {
 				if environment == "" {
-					log.Fatalf("Environment is required for exec")
+					log.Fatalf("Error: environment flag is required for exec")
 				}
 				cmd := c.Args().Get(0)
 				servers := getServers(configFile)
