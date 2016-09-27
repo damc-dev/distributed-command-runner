@@ -110,15 +110,20 @@ func formatList(servers Servers, format string) {
 }
 
 func filterServers(servers Servers, environment string, tags []string) Servers {
+	filtered := servers[:0]
+
 	if environment != "" {
-		servers = filterByEnvironment(servers, environment)
+		filtered = filterByEnvironment(servers, environment)
 	}
 	if tags != nil && len(tags) != 0 {
 		for _, tag := range tags {
-			servers = filterByTag(servers, tag)
+			if strings.TrimSpace(tag) != "" {
+				filtered = filterByTag(filtered, tag)
+			}
+
 		}
 	}
-	return servers
+	return filtered
 }
 
 func execCommand(server Server, user string, command string) (exitCode int, stdout string, stderr string) {
