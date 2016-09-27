@@ -111,9 +111,9 @@ func formatList(servers Servers, format string) {
 
 func filterServers(servers Servers, environment string, tags []string) Servers {
 	filtered := servers[:0]
-
+	filtered = servers
 	if environment != "" {
-		filtered = filterByEnvironment(servers, environment)
+		filtered = filterByEnvironment(filtered, environment)
 	}
 	if tags != nil && len(tags) != 0 {
 		for _, tag := range tags {
@@ -236,6 +236,9 @@ func main() {
 				},
 			},
 			Action: func(c *cli.Context) error {
+				if environment == "" {
+					log.Fatalf("Environment is required for exec")
+				}
 				cmd := c.Args().Get(0)
 				servers := getServers(configFile)
 				servers = filterServers(servers, environment, strings.Split(tags, ","))
