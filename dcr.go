@@ -115,9 +115,7 @@ func filterServers(servers Servers, environment string, tags []string) Servers {
 	}
 	if tags != nil && len(tags) != 0 {
 		for _, tag := range tags {
-			for _, splitTag := range strings.Split(tag, ",") {
-				servers = filterByTag(servers, splitTag)
-			}
+			servers = filterByTag(servers, tag)
 		}
 	}
 	return servers
@@ -176,7 +174,7 @@ func colorizeExitCode(exitCode int) string {
 func main() {
 	var configFile string
 	var environment string
-	var tags []string
+	var tags string
 	var format string
 	var user string
 
@@ -194,9 +192,10 @@ func main() {
 			Usage:       "Filter by environment",
 			Destination: &environment,
 		},
-		cli.StringSliceFlag{
-			Name:  "tags, t",
-			Usage: "Filter by tags",
+		cli.StringFlag{
+			Name:        "tags, t",
+			Usage:       "Filter by tags",
+			Destination: &tags,
 		},
 	}
 
@@ -213,9 +212,8 @@ func main() {
 				},
 			},
 			Action: func(c *cli.Context) error {
-				tags = c.StringSlice("tags")
 				servers := getServers(configFile)
-				servers = filterServers(servers, environment, tags)
+				servers = filterServers(servers, environment, strings.Split(tags, ","))
 				formatList(servers, format)
 				fmt.Println("")
 				return nil
@@ -233,10 +231,9 @@ func main() {
 				},
 			},
 			Action: func(c *cli.Context) error {
-				tags = c.StringSlice("tags")
 				cmd := c.Args().Get(0)
 				servers := getServers(configFile)
-				servers = filterServers(servers, environment, tags)
+				servers = filterServers(servers, environment, strings.Split(tags, ","))
 				for _, server := range servers {
 					exitCode, stdout, stderr := execCommand(server, user, cmd)
 					fmt.Printf("\n%2s[%10s] STDOUT: %10s\n", colorizeExitCode(exitCode), server.Name, strings.Trim(stdout, "\n"))
